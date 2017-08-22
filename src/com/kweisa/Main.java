@@ -1,13 +1,8 @@
 package com.kweisa;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.util.encoders.Hex;
 
-import java.io.FileOutputStream;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.Security;
-import java.security.spec.ECGenParameterSpec;
 
 public class Main {
 
