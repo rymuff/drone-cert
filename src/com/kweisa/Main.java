@@ -1,5 +1,7 @@
 package com.kweisa;
 
+import com.kweisa.certificate.Certificate;
+import com.kweisa.certificate.CertificateAuthority;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
