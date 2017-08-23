@@ -5,6 +5,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import java.io.*;
 import java.security.*;
 import java.security.spec.ECGenParameterSpec;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
@@ -18,7 +19,11 @@ public class CertificateAuthority {
         keyPair = keyPairGenerator.generateKeyPair();
     }
 
-    public CertificateAuthority(String fileName) throws Exception {
+    public CertificateAuthority(KeyPair keyPair) {
+        this.keyPair = keyPair;
+    }
+
+    public static CertificateAuthority read(String fileName) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         byte[] publicKeyBytes = new byte[91];
         byte[] privateKeyBytes = new byte[150];
 
@@ -30,7 +35,7 @@ public class CertificateAuthority {
         PublicKey publicKey = KeyFactory.getInstance("EC").generatePublic(new X509EncodedKeySpec(publicKeyBytes));
         PrivateKey privateKey = KeyFactory.getInstance("EC").generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes));
 
-        keyPair = new KeyPair(publicKey, privateKey);
+        return new CertificateAuthority(new KeyPair(publicKey, privateKey));
     }
 
     public void write(String fileName) throws IOException {
