@@ -28,7 +28,12 @@ public class Main {
                 Hex.decode("44444444"));
         clientCertificate.write("client.cert", "client.key");
 
+        certificateAuthority = CertificateAuthority.read("ca.keypair");
+
         serverCertificate = Certificate.read("server.cert");
-        serverCertificate.verify(certificateAuthority.getPublic());
+        System.out.println(certificateAuthority.verifyCertificate(serverCertificate));
+
+        clientCertificate = Certificate.read("client.cert");
+        System.out.println(certificateAuthority.verifyCertificate(clientCertificate));
     }
 }

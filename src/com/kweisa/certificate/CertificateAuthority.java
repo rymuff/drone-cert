@@ -8,6 +8,7 @@ import java.security.spec.ECGenParameterSpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 
 public class CertificateAuthority {
     private KeyPair keyPair;
@@ -85,6 +86,13 @@ public class CertificateAuthority {
 
         dataOutputStream.close();
         return byteArrayOutputStream.toByteArray();
+    }
+
+    public boolean verifyCertificate(Certificate certificate) throws Exception {
+        Signature signature = Signature.getInstance("ECDSA", BouncyCastleProvider.PROVIDER_NAME);
+        signature.initVerify(getPublic());
+        signature.update(Arrays.copyOfRange(certificate.getEncoded(), 0, 114));
+        return signature.verify(certificate.getSignature());
     }
 
     public PrivateKey getPrivate() {
