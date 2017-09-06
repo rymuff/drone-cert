@@ -4,7 +4,9 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.security.KeyFactory;
 import java.security.KeyPair;
+import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 public class Certificate {
@@ -43,6 +45,23 @@ public class Certificate {
         putBytes(bytes);
     }
 
+    public Certificate(byte[] certificateBytes, byte[] privateKeyBytes) throws Exception {
+        version = new byte[1];
+        issuer = new byte[2];
+        notBefore = new byte[8];
+        notAfter = new byte[8];
+        subject = new byte[4];
+        publicKey = new byte[91];
+        signature = new byte[certificateBytes.length - 1 - 2 - 8 - 8 - 4 - 91];
+
+        putBytes(certificateBytes);
+
+        PublicKey publicKey = KeyFactory.getInstance("EC").generatePublic(new X509EncodedKeySpec(this.publicKey));
+        PrivateKey privateKey = KeyFactory.getInstance("EC").generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes));
+
+        this.keyPair = new KeyPair(publicKey, privateKey);
+    }
+
     public static Certificate read(String fileName) throws Exception {
         FileInputStream fileInputStream = new FileInputStream(fileName);
         DataInputStream dataInputStream = new DataInputStream(fileInputStream);
@@ -56,16 +75,16 @@ public class Certificate {
 
     public static Certificate read(String certificateFileName, String privateKeyFileName) throws Exception {
         FileInputStream fileInputStream = new FileInputStream(certificateFileName);
-        byte[] bytes = new byte[fileInputStream.available()];
-        fileInputStream.read(bytes);
+        byte[] certificateBytes = new byte[fileInputStream.available()];
+        fileInputStream.read(certificateBytes);
         fileInputStream.close();
 
         fileInputStream = new FileInputStream(privateKeyFileName);
-        bytes = new byte[fileInputStream.available()];
-        fileInputStream.read(bytes);
+        byte[] privateKeyBytes = new byte[fileInputStream.available()];
+        fileInputStream.read(privateKeyBytes);
         fileInputStream.close();
 
-        return new Certificate(bytes);
+        return new Certificate(certificateBytes, privateKeyBytes);
     }
 
     public void write(String fileName) throws IOException {
