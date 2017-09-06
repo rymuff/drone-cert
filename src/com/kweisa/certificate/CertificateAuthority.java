@@ -57,7 +57,7 @@ public class CertificateAuthority {
         dataOutputStream.writeLong(notBefore);
         dataOutputStream.writeLong(notAfter);
         dataOutputStream.write(subject, 0, 4);
-        dataOutputStream.write(certKeyPair.getPublic().getEncoded(),0,91);
+        dataOutputStream.write(certKeyPair.getPublic().getEncoded(), 0, 91);
 
         Signature signature = Signature.getInstance("ECDSA", BouncyCastleProvider.PROVIDER_NAME);
         signature.initSign(keyPair.getPrivate());
