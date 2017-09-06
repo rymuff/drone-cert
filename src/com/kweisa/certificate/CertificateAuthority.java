@@ -45,14 +45,37 @@ public class CertificateAuthority {
         fileOutputStream.close();
     }
 
+    public Certificate generateEncodedCertificate(byte[] version, byte[] issuer, long notBefore, long notAfter, byte[] subject) throws Exception {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME);
+        keyPairGenerator.initialize(new ECGenParameterSpec(CURVE_NAME));
+        KeyPair certKeyPair = keyPairGenerator.generateKeyPair();
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
+        dataOutputStream.write(version, 0, 1);
+        dataOutputStream.write(issuer, 0, 2);
+        dataOutputStream.writeLong(notBefore);
+        dataOutputStream.writeLong(notAfter);
+        dataOutputStream.write(subject, 0, 4);
+        dataOutputStream.write(certKeyPair.getPublic().getEncoded());
+
+        Signature signature = Signature.getInstance("ECDSA", BouncyCastleProvider.PROVIDER_NAME);
+        signature.initSign(keyPair.getPrivate());
+        signature.update(byteArrayOutputStream.toByteArray());
+        dataOutputStream.write(signature.sign());
+
+        dataOutputStream.close();
+        return new Certificate(byteArrayOutputStream.toByteArray(), keyPair);
+    }
+
     public byte[] generateEncodedCertificate(byte[] version, byte[] issuer, long notBefore, long notAfter, byte[] subject, KeyPair certKeyPair) throws Exception {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
-        dataOutputStream.write(version);
-        dataOutputStream.write(issuer);
+        dataOutputStream.write(version, 0, 1);
+        dataOutputStream.write(issuer, 0, 2);
         dataOutputStream.writeLong(notBefore);
         dataOutputStream.writeLong(notAfter);
-        dataOutputStream.write(subject);
+        dataOutputStream.write(subject, 0, 4);
         dataOutputStream.write(certKeyPair.getPublic().getEncoded());
 
         Signature signature = Signature.getInstance("ECDSA", BouncyCastleProvider.PROVIDER_NAME);

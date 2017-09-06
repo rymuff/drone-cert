@@ -5,6 +5,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.security.KeyFactory;
+import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.X509EncodedKeySpec;
@@ -18,6 +19,7 @@ public class Certificate {
     private byte[] subject;
     private byte[] publicKey;
     private byte[] signature;
+    private KeyPair keyPair;
 
     public Certificate(byte[] bytes) {
         version = new byte[1];
@@ -27,6 +29,20 @@ public class Certificate {
         subject = new byte[4];
         publicKey = new byte[91];
         signature = new byte[bytes.length - 1 - 2 - 8 - 8 - 4 - 91];
+
+        putBytes(bytes);
+    }
+
+    public Certificate(byte[] bytes, KeyPair keyPair) {
+        version = new byte[1];
+        issuer = new byte[2];
+        notBefore = new byte[8];
+        notAfter = new byte[8];
+        subject = new byte[4];
+        publicKey = new byte[91];
+        signature = new byte[bytes.length - 1 - 2 - 8 - 8 - 4 - 91];
+
+        this.keyPair = keyPair;
 
         putBytes(bytes);
     }
@@ -45,6 +61,16 @@ public class Certificate {
     public void write(String fileName) throws IOException {
         FileOutputStream fileOutputStream = new FileOutputStream(fileName);
         fileOutputStream.write(getEncoded());
+        fileOutputStream.close();
+    }
+
+    public void write(String fileName, String privateKeyFileName) throws IOException {
+        FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+        fileOutputStream.write(getEncoded());
+        fileOutputStream.close();
+
+        fileOutputStream = new FileOutputStream(privateKeyFileName);
+        fileOutputStream.write(keyPair.getPrivate().getEncoded());
         fileOutputStream.close();
     }
 
