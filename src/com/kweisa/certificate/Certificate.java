@@ -1,15 +1,11 @@
 package com.kweisa.certificate;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.PublicKey;
-import java.security.Signature;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Arrays;
 
 public class Certificate {
     private byte[] version;
@@ -58,14 +54,28 @@ public class Certificate {
         return new Certificate(bytes);
     }
 
+    public static Certificate read(String certificateFileName, String privateKeyFileName) throws Exception {
+        FileInputStream fileInputStream = new FileInputStream(certificateFileName);
+        byte[] bytes = new byte[fileInputStream.available()];
+        fileInputStream.read(bytes);
+        fileInputStream.close();
+
+        fileInputStream = new FileInputStream(privateKeyFileName);
+        bytes = new byte[fileInputStream.available()];
+        fileInputStream.read(bytes);
+        fileInputStream.close();
+
+        return new Certificate(bytes);
+    }
+
     public void write(String fileName) throws IOException {
         FileOutputStream fileOutputStream = new FileOutputStream(fileName);
         fileOutputStream.write(getEncoded());
         fileOutputStream.close();
     }
 
-    public void write(String fileName, String privateKeyFileName) throws IOException {
-        FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+    public void write(String certificateFileName, String privateKeyFileName) throws IOException {
+        FileOutputStream fileOutputStream = new FileOutputStream(certificateFileName);
         fileOutputStream.write(getEncoded());
         fileOutputStream.close();
 
@@ -100,13 +110,6 @@ public class Certificate {
         return byteArrayOutputStream.toByteArray();
     }
 
-    public boolean verify(PublicKey caPublicKey) throws Exception {
-        Signature signature = Signature.getInstance("ECDSA", BouncyCastleProvider.PROVIDER_NAME);
-        signature.initVerify(caPublicKey);
-        signature.update(Arrays.copyOfRange(getEncoded(), 0, 114));
-        return signature.verify(getSignature());
-    }
-
     public byte[] getVersion() {
         return version;
     }
@@ -127,12 +130,15 @@ public class Certificate {
         return subject;
     }
 
+    public PublicKey getPublicKey() throws Exception {
+        return KeyFactory.getInstance("EC").generatePublic(new X509EncodedKeySpec(publicKey));
+    }
 
     public byte[] getSignature() {
         return signature;
     }
 
-    public PublicKey getPublicKey() throws Exception {
-        return KeyFactory.getInstance("EC").generatePublic(new X509EncodedKeySpec(publicKey));
+    public KeyPair getKeyPair() {
+        return keyPair;
     }
 }

@@ -9,6 +9,18 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Security.addProvider(new BouncyCastleProvider());
 
+        CertificateAuthority certificateAuthority = CertificateAuthority.read("ca.keypair");
+
+        Certificate serverCertificate = Certificate.read("server.cert");
+        System.out.println(certificateAuthority.verifyCertificate(serverCertificate));
+        d("serverCert", serverCertificate.getEncoded());
+
+        Certificate clientCertificate = Certificate.read("client.cert");
+        System.out.println(certificateAuthority.verifyCertificate(clientCertificate));
+        d("clientCert", clientCertificate.getEncoded());
+    }
+
+    void generate() throws Exception {
         CertificateAuthority certificateAuthority = new CertificateAuthority();
         certificateAuthority.write("ca.keypair");
 
@@ -27,13 +39,9 @@ public class Main {
                 System.currentTimeMillis() + 60 * 60 * 24,
                 Hex.decode("44444444"));
         clientCertificate.write("client.cert", "client.key");
+    }
 
-        certificateAuthority = CertificateAuthority.read("ca.keypair");
-
-        serverCertificate = Certificate.read("server.cert");
-        System.out.println(certificateAuthority.verifyCertificate(serverCertificate));
-
-        clientCertificate = Certificate.read("client.cert");
-        System.out.println(certificateAuthority.verifyCertificate(clientCertificate));
+    public static void d(String tag, byte[] message) {
+        System.out.println(tag + ": " + Hex.toHexString(message));
     }
 }
