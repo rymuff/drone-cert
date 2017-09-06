@@ -3,24 +3,49 @@ package com.kweisa.certificate;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Hex;
 
-import java.security.Security;
+import javax.crypto.Cipher;
+import java.security.*;
+import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.ECGenParameterSpec;
 
 public class Main {
     public static void main(String[] args) throws Exception {
         Security.addProvider(new BouncyCastleProvider());
 
-        CertificateAuthority certificateAuthority = CertificateAuthority.read("ca.keypair");
+//        generate();
 
-        Certificate serverCertificate = Certificate.read("server.cert");
-        System.out.println(certificateAuthority.verifyCertificate(serverCertificate));
-        d("serverCert", serverCertificate.getEncoded());
+//        CertificateAuthority certificateAuthority = CertificateAuthority.read("ca.keypair");
+//
+//        Certificate serverCertificate = Certificate.read("server.cert", "server.key");
+//        System.out.println(certificateAuthority.verifyCertificate(serverCertificate));
+//        d("serverCert", serverCertificate.getEncoded());
+//
+//        Certificate clientCertificate = Certificate.read("client.cert", "client.key");
+//        System.out.println(certificateAuthority.verifyCertificate(clientCertificate));
+//        d("clientCert", clientCertificate.getEncoded());
+//
+        AlgorithmParameterSpec algorithmParameterSpec = new ECGenParameterSpec("secp256r1");
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("ECDH", BouncyCastleProvider.PROVIDER_NAME);
+        kpg.initialize(algorithmParameterSpec);
 
-        Certificate clientCertificate = Certificate.read("client.cert");
-        System.out.println(certificateAuthority.verifyCertificate(clientCertificate));
-        d("clientCert", clientCertificate.getEncoded());
+        KeyPair keyPair = kpg.generateKeyPair();
+//        KeyPair keyPair = clientCertificate.getKeyPair();
+
+        String plainText = "Hello, World!asdfasdfasdfasdf";
+        Cipher cipher = Cipher.getInstance("ECIES", BouncyCastleProvider.PROVIDER_NAME);
+
+
+        cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
+        byte[] cipherText = cipher.doFinal(plainText.getBytes());
+        d("cipher", cipherText);
+
+        cipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
+        System.out.println(new String(cipher.doFinal(cipherText)));
+
+
     }
 
-    void generate() throws Exception {
+    private static void generate() throws Exception {
         CertificateAuthority certificateAuthority = new CertificateAuthority();
         certificateAuthority.write("ca.keypair");
 
@@ -41,7 +66,7 @@ public class Main {
         clientCertificate.write("client.cert", "client.key");
     }
 
-    public static void d(String tag, byte[] message) {
+    private static void d(String tag, byte[] message) {
         System.out.println(tag + ": " + Hex.toHexString(message));
     }
 }
