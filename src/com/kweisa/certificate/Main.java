@@ -12,7 +12,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Security.addProvider(new BouncyCastleProvider());
 
-//        generate();
+        generate();
 
 //        CertificateAuthority certificateAuthority = CertificateAuthority.read("ca.keypair");
 //
@@ -24,25 +24,23 @@ public class Main {
 //        System.out.println(certificateAuthority.verifyCertificate(clientCertificate));
 //        d("clientCert", clientCertificate.getEncoded());
 //
-        AlgorithmParameterSpec algorithmParameterSpec = new ECGenParameterSpec("secp256r1");
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("ECDH", BouncyCastleProvider.PROVIDER_NAME);
-        kpg.initialize(algorithmParameterSpec);
-
-        KeyPair keyPair = kpg.generateKeyPair();
-//        KeyPair keyPair = clientCertificate.getKeyPair();
-
-        String plainText = "Hello, World!asdfasdfasdfasdf";
-        Cipher cipher = Cipher.getInstance("ECIES", BouncyCastleProvider.PROVIDER_NAME);
-
-
-        cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
-        byte[] cipherText = cipher.doFinal(plainText.getBytes());
-        d("cipher", cipherText);
-
-        cipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
-        System.out.println(new String(cipher.doFinal(cipherText)));
-
-
+//        AlgorithmParameterSpec algorithmParameterSpec = new ECGenParameterSpec("secp256r1");
+//        KeyPairGenerator kpg = KeyPairGenerator.getInstance("ECDH", BouncyCastleProvider.PROVIDER_NAME);
+//        kpg.initialize(algorithmParameterSpec);
+//
+//        KeyPair keyPair = kpg.generateKeyPair();
+////        KeyPair keyPair = clientCertificate.getKeyPair();
+//
+//        String plainText = "Hello, World!asdfasdfasdfasdf";
+//        Cipher cipher = Cipher.getInstance("ECIES", BouncyCastleProvider.PROVIDER_NAME);
+//
+//
+//        cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
+//        byte[] cipherText = cipher.doFinal(plainText.getBytes());
+//        d("cipher", cipherText);
+//
+//        cipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
+//        System.out.println(new String(cipher.doFinal(cipherText)));
     }
 
     private static void generate() throws Exception {

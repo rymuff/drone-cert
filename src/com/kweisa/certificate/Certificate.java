@@ -155,6 +155,10 @@ public class Certificate {
         return KeyFactory.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME).generatePublic(new X509EncodedKeySpec(publicKey));
     }
 
+    public PrivateKey getPrivateKey() {
+        return keyPair.getPrivate();
+    }
+
     public byte[] getSignature() {
         return signature;
     }
